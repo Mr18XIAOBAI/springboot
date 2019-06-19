@@ -14,9 +14,9 @@ public class SpringBootApplicationTestsAdd {
     PartyInfoService partyInfoService;
 
     @Test
-    public void contextLoads() {
-       addPartyInfo();
-    }
+//    public void contextLoads() {
+//       addPartyInfo();
+//    }
 
     private void addPartyInfo() {
 
