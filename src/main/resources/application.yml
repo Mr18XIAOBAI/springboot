@@ -1,0 +1,96 @@
+spring:
+#数据源
+  datasource:
+      username: root
+      password: root
+      url: jdbc:mysql://192.168.0.114:3306/dianzhi?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT%2b8
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      sql-script-encoding: UTF-8
+      type: com.alibaba.druid.pool.DruidDataSource
+#      schema:
+#        - classpath:sql/department.sql
+#        - classpath:sql/employee.sql
+#      # always 初始化模式才允许 DataSource 运行执行 sql 脚本
+#      initialization-mode: never
+
+#Druid其他配置
+      druid:
+        initial-size: 5
+        min-idle: 5
+        max-active: 1000
+        max-wait: 60000
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 300000
+        validation-query: SELECT 1 FROM DUAL
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
+        pool-prepared-statements: true
+        filter:
+          stat:
+            db-type: mysql
+            log-slow-sql: true
+            slow-sql-millis: 2000
+          wall:
+            enabled: true
+            db-type: mysql
+            config:
+              delete-allow: true
+#             是否允许执行删除表语句
+              drop-table-allow: true
+        max-pool-prepared-statement-per-connection-size: 20
+        use-global-data-source-stat: true
+        connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+        stat-view-servlet:
+          login-username: admin
+          login-password: admin
+  devtools:
+    restart:
+      enabled: true
+      #设置重启的目录
+      additional-paths:
+        - src/main/java
+      poll-interval: 5S
+      quiet-period: 2000ms
+      #classpath目录下的WEB-INF文件夹内容修改不重启
+#jpa
+  jpa:
+    hibernate:
+#     更新或创建表结构
+      ddl-auto: update
+#   显示 SQL
+    show-sql: true
+    open-in-view: false
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    generate-ddl: true
+    database: mysql
+#mybatis:
+#  configuration:
+#    map-underscore-to-camel-case: true
+#  config-location: classpath:mybatis/mybatis-config.xml
+#  mapper-locations: classpath:mybatis/mapper/*.xml
+#jackson
+#  jackson:
+#    date-format: yyyy-MM-dd HH:mm:ss
+#    time-zone: GMT+8
+#编码
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      force-response: true
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+  data:
+    neo4j:
+      open-in-view: true
+#tomcat
+server:
+  tomcat:
+    uri-encoding: UTF-8

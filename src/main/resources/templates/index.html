@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <title>API测试页</title>
+    <style>
+        body, dl, dt, dd, p, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, select, fieldset, input, button, textarea, blockquote {margin: 0; padding: 0; }
+    </style>
+    <script src="../../../../../../Library/Containers/com.tencent.xinWeChat/Data/Library/Application Support/com.tencent.xinWeChat/2.0b4.0.9/a87821d58dfd94c9e9f31af7094bff83/Message/MessageTemp/19f91a87adb836426c4589bec5c91ef1/File/machining.js"></script>
+</head>
+<body>
+<h1>系统初始测试</h1>
+<div>
+    <h3>跨域测试</h3>
+    <div>
+        <input type="button" id="testCORS" value="跨域测试"/>
+    </div>
+    <h3>打印测试</h3>
+    <div>
+        <input type="button" id="testExport" value="打印测试"/>
+    </div>
+    <h3>注册短信测试</h3>
+    <div>
+        <form>
+            <input type="text" width="100px" id="mobile" placeholder="手机号码"/>
+            <input id="testSMS" type="button" value="注册短信测试"/>
+        </form>
+    </div>
+    <h3>验证码注册测试</h3>
+    <div>
+        <form>
+            <input id="verificationCode" type="text" width="100px" placeholder="验证码"/>
+            <input id="password" type="text" width="100px" placeholder="密码"/>
+            <input id="sessionId" type="text" width="100px" placeholder="sessionId"/>
+            <input id="testRegister" type="button"  value="提交"/>
+        </form>
+    </div>
+    <h3>上传文件测试(可批量)</h3>
+    <div id="uploadForm">
+        <input id="file" type="file" multiple/>
+        <button id="upload" type="button" onclick="getUpload()">上传</button>
+    </div>
+    <!--<h3>单一文件上传测试</h3>-->
+    <!--<div>-->
+        <!--<form method="POST" enctype="multipart/form-data" action="/api/upload">-->
+            <!--<p>-->
+                <!--文件1：<input type="file" name="file"/>-->
+                <!--<input type="submit" value="上传"/>-->
+            <!--</p>-->
+        <!--</form>-->
+    <!--</div>-->
+    <!--<h3>批量文件上传示例</h3>-->
+    <!--<div>-->
+        <!--<form method="POST" enctype="multipart/form-data"-->
+              <!--action="/uploads/upload2">-->
+            <!--<p>文件1：<input type="file" name="file"/></p>-->
+            <!--<p>文件2：<input type="file" name="file"/></p>-->
+            <!--<p><input type="button" value="上传"/></p>-->
+        <!--</form>-->
+    <!--</div>-->
+    <h3>Base64文件上传</h3>
+    <div>
+        <textarea name="base64" id="base64Str" rows="10" cols="80"></textarea>
+        <input type="button" id="testBase64" value="上传"/>
+    </div>
+
+    <h3>导出Excel测试</h3>
+    <div>
+        <form>
+            <input type="text" width="100px" id="excelExportUrl" placeholder="导出URI"/>
+            <input type="text" width="100px" id="excelName" placeholder="导出文件名"/>
+            <input id="testExcelExport" type="button" value="导出"/>
+        </form>
+    </div>
+</div>
+<p id="info"></p>
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    var length;
+    var curWwwPath = window.document.location.href;
+    var pathname= window.document.location.pathname;
+    var pos = curWwwPath.indexOf(pathname);
+    var localhostPath = curWwwPath .substring(0,pos);
+    var requestUrl = localhostPath;
+    $(function(){
+
+        // 跨域的点击事件
+        $("#testCORS").click(function(){
+            $.ajax({
+                url: requestUrl+"/test",
+                type: "POST",
+                xhrFields: {
+                    withCredentials: true //允许跨域认证
+                },
+                success: function (data) {
+                    $("#info").html("跨域访问:" + data.msg);
+                },
+                error: function (data) {
+                    $("#info").html("跨域失败!!");
+                }
+            })
+        });
+
+        // 短信的点击事件
+        $("#testSMS").click(function(){
+            $.ajax({
+                url: requestUrl+"/api/sms/send",
+                type: "POST",
+                contentType:"application/json",
+                data:'{"mobile":"'+$("#mobile").val()+'","type":"register"}',
+                dataType:"json",
+                success: function (data) {
+                    $("#info").html(data.msg);
+                },
+                error: function (data) {
+                    $("#info").html(data.errorMsg);
+                }
+            })
+        });
+
+        // 注册的点击事件
+        $("#testRegister").click(function(){
+            $.ajax({
+                url: requestUrl+"/api/user/register",
+                contentType:"application/json",
+                type: "POST",
+                data:
+                    '{"mobile":'+$("#mobile").val()+',' +
+                    '"verificationCode":"'+$("#verificationCode").val()+'",' +
+                    '"password":"'+$("#password").val()+'",' +
+                    '"JSESSIONID":"'+$("#sessionId").val()+'",' +
+                    '"realName":"Revisit"}',
+
+                dataType:"json",
+                xhrFields: {
+                    withCredentials: true //允许跨域认证
+                },
+                success: function (data) {
+                    $("#info").html("注册成功:" + data.data);
+                },
+                error: function (data) {
+                    $("#info").html(data.errorMsg);
+                }
+            })
+        });
+
+        // 调用 test 的点击事件的两种方法
+        // $("#test").trigger("click");
+        // $("#test").click()
+    });
+
+    //文件上传
+    $("#file").change(function () {
+        length = this.files.length;
+        console.log(length);
+    })
+
+    function getUpload(){
+        var formData = new FormData();
+        var arr=new Array();
+        var container;
+        var i=0;
+        for(var i=0;i<length;i++){
+            formData.append('file', $('#file')[0].files[i]);
+            // console.log(formData.get("file"));
+        }
+        container=formData.getAll("file");
+        for (var item in container) {
+            arr[i] = container[item];
+            i++;
+        }
+        console.log(arr);
+        $.ajax({
+            url: '/api/upload',
+            type: 'POST',
+            dataType:"json",
+            cache: false,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success:(function(data) {
+                $("#info").html("上传成功:" + data.data);
+            }),
+            error:(function(data) {
+                $("#info").html("上传失败:" + data.errorMsg);
+            })
+        });
+    }
+
+    // base64的点击事件
+    $("#testBase64").click(function(){
+        $.ajax({
+            url: requestUrl+"/api/upload/base64",
+            type: "POST",
+            contentType:"application/json",
+            data:'{"base64File":"'+$("#base64Str").val()+'"}',
+            dataType:"json",
+            success: function (data) {
+                $("#info").html(data.data);
+            },
+            error: function (data) {
+                $("#info").html(data.errorMsg);
+            }
+        })
+    });
+
+    Date.prototype.format = function (format) {
+        var args = {
+            "M+": this.getMonth() + 1,
+            "d+": this.getDate(),
+            "h+": this.getHours(),
+            "m+": this.getMinutes(),
+            "s+": this.getSeconds(),
+            "q+": Math.floor((this.getMonth() + 3) / 3),  //quarter
+            "S": this.getMilliseconds()
+        };
+        if (/(y+)/.test(format))
+            format = format.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var i in args) {
+            var n = args[i];
+            if (new RegExp("(" + i + ")").test(format))
+                format = format.replace(RegExp.$1, RegExp.$1.length == 1 ? n : ("00" + n).substr(("" + n).length));
+        }
+        return format;
+    };
+    // 导出excel的点击事件
+    $("#testExcelExport").click(function(){
+        var fileName = $("#excelName").val();
+        if (fileName==null||fileName==""){
+            fileName = new Date().format("yyyy-MM-dd");
+        }
+        var url = requestUrl+"/api"+encodeURI($("#excelExportUrl").val())
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);        // 也可以使用POST方式，根据接口
+        xhr.responseType = "blob";    // 返回类型blob
+        xhr.setRequestHeader("Authorization","jTg3AqGuRDGDjeOAyA9RCQ");
+        // 定义请求完成的处理函数，请求前也可以增加加载框/禁用下载按钮逻辑
+        xhr.onload = function () {
+            // 请求完成
+            if (this.status === 200) {
+                // 返回200
+                var blob = this.response;
+                var reader = new FileReader();
+                reader.readAsDataURL(blob);    // 转换为base64，可以直接放入a表情href
+                reader.onload = function (e) {
+                    //创建一个a标签用于下载
+                    var a = document.createElement('a');
+                    a.download = fileName+'.xls';
+                    a.href = e.target.result;
+                    $("body").append(a);    // 修复firefox中无法触发click
+                    a.click();
+                    $(a).remove();
+                }
+            }else{
+                $("#info").html(this.data.errorMsg);
+            }
+        };
+        // 发送ajax请求
+        xhr.send();
+    });
+</script>
+</html>

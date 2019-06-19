@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>系统错误</title>
+</head>
+<body>
+<p th:text="'请求地址: '+${requestUrl}"></p>
+<p th:text="'地址参数: '+${urlData}"></p>
+<p th:text="'body参数: '+${bodyData}"></p>
+<p th:text="'错误码: '+${code}"></p>
+<p th:text="'信息: '+${msg}"></p>
+<p th:text="${errorMsg}"></p>
+</body>
+</html>
